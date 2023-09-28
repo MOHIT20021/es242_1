@@ -10,20 +10,37 @@
  * Selections should be generated in lexicographic order.
  * a[0..k-1] is the smallest selection and a[n-k..n-1] is the largest.
  */
-void generate_selections(int a[], int n, int k, int b[], void *data, void (*process_selection)(int *b, int k, void *data))
+void generate_lexicographic_selections(int a[], int n, int k, int b[], int idx, void* data, void (*process_selection)(int *b, int k, void *data)) {
+    if (idx == k) {
+        process_selection(b, k,data);
+        return;
+    }
+
+    for (int i = 0; i < n; i++) {
+        // Ensure lexicographic order
+        if (idx == 0 || b[idx - 1] < a[i]) {
+            b[idx] = a[i];
+            generate_lexicographic_selections(a, n, k, b, idx + 1, data, process_selection);
+        }
+    }
+}
+
+void generate_selections(int a[], int n, int k, int b[], void* data, void (*process_selection)(int *b, int k, void *data))
 {
-    b[0] = 2; b[1] = 1;
-    process_selection(b, 2, data);
-    b[0] = 2; b[1] = 6;
-    process_selection(b, 2, data);
-    b[0] = 2; b[1] = 5;
-    process_selection(b, 2, data);
-    b[0] = 1; b[1] = 6;
-    process_selection(b, 2, data);
-    b[0] = 1; b[1] = 5;
-    process_selection(b, 2, data);
-    b[0] = 6; b[1] = 5;
-    process_selection(b, 2, data);
+    // b[0] = 2; b[1] = 1;
+    // process_selection(b, 2, data);
+    // b[0] = 2; b[1] = 6;
+    // process_selection(b, 2, data);
+    // b[0] = 2; b[1] = 5;
+    // process_selection(b, 2, data);
+    // b[0] = 1; b[1] = 6;
+    // process_selection(b, 2, data);
+    // b[0] = 1; b[1] = 5;
+    // process_selection(b, 2, data);
+    // b[0] = 6; b[1] = 5;
+    // process_selection(b, 2, data);
+    generate_lexicographic_selections(a, n, k, b, 0, NULL, process_selection);
+
 }
 
 /*
@@ -34,12 +51,51 @@ void generate_selections(int a[], int n, int k, int b[], void *data, void (*proc
  * The dictionary parameter is an array of words, sorted in dictionary order.
  * nwords is the number of words in this dictionary.
  */
-void generate_splits(const char *source, const char *dictionary[], int nwords, char buf[], void *data, void (*process_split)(char buf[], void *data))
-{
-    strcpy(buf, "art is toil");
-    process_split(buf, data);
-    strcpy(buf, "artist oil");
-    process_split(buf, data);
+int is_word(char *ss, const char **dictionary, int dictionary_size) {
+    for (int i = 0; i < dictionary_size; i++) {
+        if (strcmp(ss, dictionary[i]) == 0) {
+            return 1; // Found a valid word in the dictionary
+        }
+    }
+    return 0; // Not found in the dictionary
+}
+
+void partition_helper(const char A, const char *dictionary[], int dictionary_size, int start, char path[], int path_size, void *data, void (*process_split)(char buf[], void *data)) {
+    int l = strlen(A);
+    if (start == l) {
+        path[path_size] = '\0'; // Null-terminate the path
+        process_split(path, data);
+        return;
+    }
+
+    for (int i = start; i < l; i++) {
+        // Check each substring
+        for (int j = start; j <= i; j++) {
+            path[path_size++] = A[j];
+        }
+        path_size--; // To compensate for the extra increment in the loop
+
+        char ss[100]; // Assuming a maximum word length of 100
+        strncpy(ss, A + start, i - start + 1);
+        ss[i - start + 1] = '\0';
+
+        if (is_word(ss, dictionary, dictionary_size)) {
+            partition_helper(A, dictionary, dictionary_size, i + 1, path, path_size + 1, data, process_split);
+        }
+
+        // Remove the added substring
+        for (int j = start; j <= i; j++) {
+            path[path_size--] = '\0';
+        }
+    }
+}
+
+void generate_splits(const char *source, const char *dictionary[], int nwords, char buf[], void *data, void (*process_split)(char buf[], void *data)) {
+    partition_helper(source, dictionary, nwords, 0, buf, 0, NULL, process_split);
+}
+
+void process_split(char buf[], void *data) {
+    printf("%s\n", buf); // Just printing the split for demonstration
 }
 
 /*
@@ -48,15 +104,15 @@ void generate_splits(const char *source, const char *dictionary[], int nwords, c
  */
 void previous_permutation(int a[], int n)
 {
-    a[0] = 1;
-    a[1] = 5;
-    a[2] = 4;
-    a[3] = 6;
-    a[4] = 3;
-    a[5] = 2;
+    // a[0] = 1;
+    // a[1] = 5;
+    // a[2] = 4;
+    // a[3] = 6;
+    // a[4] = 3;
+    // a[5] = 2;
 }
 
-/* Write your tests here. Use the previous assignment for reference. */
+// /* Write your tests here. Use the previous assignment for reference. */
 
 typedef struct {
     int index;
@@ -110,7 +166,7 @@ static void test_selections_2165(int b[], int k, void *data)
 
 void count_selections(int b[], int k, void *data)
 {
-    int *d = (int*)data;
+    int d = (int)data;
     ++*d;
 }
 
@@ -120,7 +176,7 @@ typedef struct {
 
 void last_selection(int b[], int k, void *data)
 {
-    selection_t *s = (selection_t*)data;
+    selection_t s = (selection_t)data;
     for (int i = 0; i < k; ++i) {
         s->b[i] = b[i];
     }
@@ -144,7 +200,7 @@ BEGIN_TEST(generate_selections) {
 
 void test_splits_art(char buf[], void *data)
 {
-    state_t *s = (state_t*)data;
+    state_t s = (state_t)data;
     if (s->first) {
         s->err = 0;
         s->first = 0;
