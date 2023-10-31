@@ -5,6 +5,7 @@ enum {
     BLUE,
 };
 
+
 typedef char board_t[4][5];
 typedef char player_t;
 
@@ -21,6 +22,7 @@ typedef struct {
 
 move_t best_move(board_t board, player_t player)
 {}
+
 
 void print_board(board_t board)
 {}

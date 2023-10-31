@@ -117,7 +117,7 @@ int max_num(int* a, int n, int k) {
 void order(int *a, int *t, int n, int start) {
     int m;
     for (int i = start; i < n; i++) {
-        m = max_num(t, 6, INT_MAX);
+        m = max_num(t, n, INT_MAX);
         a[i] = t[m];
         t[m] = -1;
     }

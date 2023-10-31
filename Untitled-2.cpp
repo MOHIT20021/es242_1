@@ -1,66 +1,53 @@
 
 #include<iostream>
+#include<vector>
 using namespace std;
 
-
-int max_num(int* a,int n,int k=INT_MAX){
-    int max=INT_MIN;
-    int max_idx=-1;
-    for (int i=0; i<n;i++){
-        if (a[i]>max && a[i]<=k){
-            max=a[i];
-            max_idx=i;
+vector<vector<int>> floodFill(vector<vector<int>>& image, int sr, int sc, int color) {
+    const int k=image[sr][sc];
         
-    }   
-    }return max_idx;
-}
-void order(int *a,int *t,int n ,int start){
-    int m;
-    for (int i=start;i<n;i++){
-    m=max_num(t,6);
-    a[i]=t[m];
-    t[m]=-1;
-    }
-}
-int smallest(int* a,int n,int idx,int* t,int t_idx){
+            image[sr][sc]=color;
+        cout<<" sr sc "<<sr<<sc<<endl;
+        if ((sr-1)>=0 && image[sr-1][sc]==k){
+            cout<<"1st\n";
+            floodFill(image,sr-1,sc,color);
+        }
+        if ((sc-1)>=0 && image[sr][sc-1]==k){
+            cout<<"2st\n";
 
-    if (idx-1>=0){
-        t[t_idx]=a[idx];
-        t_idx++;
+            floodFill(image,sr,sc-1,color);}
+            
+        if ((sr+1)<image.size() && image[sr+1][sc]==k){
+            cout<<"3rd\n";
 
-        if (a[idx]>=a[idx-1]){
-   
-            smallest(a,n,idx-1,t,t_idx);
-            }
-        
-        // elif 
-        else if ((n-idx)==t_idx){
-            int temp=a[idx-1];
-      
-            int w=max_num(t,n,temp);
-
-            a[idx-1]=t[w];
-            t[w]=temp;
-            order(a,t,n,idx);
-
+           floodFill(image,sr+1,sc,color);
         }
 
+        if ((sc+1)<image[0].size() && image[sr][sc+1]==k){
+            cout<<"4st\n";
 
+            floodFill(image,sr,sc+1,color);
         }
-        return *a;
-    
+        cout<<endl;
 
-    }
-
-
+    return image;
+}
 
 int main(){
+   vector<vector<int>> v ={{0, 0, 0}, {0,0,0 }}; 
+   	for(int i=0;i<v.size();i++){
+		for(int j=0;j<v[i].size();j++)
+			cout<<v[i][j]<<" ";
+		cout<<endl;
+	}
+    cout<<endl;
+    floodFill(v,1,0,2);
+    cout<<"hi"<<endl;
+    for(int i=0;i<v.size();i++){
+		for(int j=0;j<v[i].size();j++)
+			cout<<v[i][j]<<" ";
+		cout<<endl;
+	}
 
-    int a[4]={6,6,6,5};
-    int t[6]={-1,-1,-1,-1,-1,-1};
-    int size=0;
-    int idx=3;
-    smallest(a,4,idx,t,size);
 
- 
 }
